@@ -1,18 +1,25 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import MetaData
+# server/app.py
 
-# contains definitions of tables and associated schema constructs
-metadata = MetaData()
+from flask import Flask
+from flask_migrate import Migrate
 
-# create the Flask SQLAlchemy extension
-db = SQLAlchemy(metadata=metadata)
+from models import db
 
-# define a model class by inheriting from db.Model.
+# create a Flask application instance
+app = Flask(__name__)
+
+# configure the database connection to the local file app.db
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+
+# configure flag to disable modification tracking and use less memory
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# create a Migrate object to manage schema modifications
+migrate = Migrate(app, db)
+
+# initialize the Flask application to use the database
+db.init_app(app)
 
 
-class Pet(db.Model):
-    __tablename__ = 'pets'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    species = db.Column(db.String)
+if __name__ == '__main__':
+    app.run(port=5555, debug=True)
